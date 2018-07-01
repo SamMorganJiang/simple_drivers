@@ -1,3 +1,11 @@
+/*
+ * a simple char device driver: simplefifo
+ *
+ * Copyright (C) 2018 Sam Morgan Jiang  (sam.morgan.jiang@outlook.com)
+ *
+ * Licensed under GPLv2 or later.
+ */
+
 #include <linux/module.h>
 #include <linux/platform_device.h>
 
@@ -26,5 +34,5 @@ static void __exit simplefifo_dev_exit(void) {
 module_init(simplefifo_dev_init);
 module_exit(simplefifo_dev_exit);
 
-MODULE_AUTHOR("Sam <sam.morgan.jiang@outlook.com");
-MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Sam <sam.morgan.jiang@outlook.com>");
+MODULE_LICENSE("GPL v2");
