@@ -4,7 +4,7 @@ KVERS = $(shell uname -r)
 obj-m += simplefifo.o simplefifo_dev.o
 
 # Specify flags for the module compilation.
-EXTRA_CFLAGS=-g -O0
+EXTRA_CFLAGS=-g -O1
 
 build: kernel_modules
 
