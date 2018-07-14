@@ -11,24 +11,26 @@
 
 static struct platform_device *simplefifo_pdev;
 
-static int __init simplefifo_dev_init(void) {
-    int ret;
+static int __init simplefifo_dev_init(void)
+{
+	int ret;
 
-    simplefifo_pdev = platform_device_alloc("simplefifo", -1);
-    if (!simplefifo_pdev)
-        return -ENOMEM;
+	simplefifo_pdev = platform_device_alloc("simplefifo", -1);
+	if (!simplefifo_pdev)
+		return -ENOMEM;
 
-    ret = platform_device_add(simplefifo_pdev);
-    if (ret) {
-        platform_device_put(simplefifo_pdev);
-        return ret;
-    }
+	ret = platform_device_add(simplefifo_pdev);
+	if (ret) {
+		platform_device_put(simplefifo_pdev);
+		return ret;
+	}
 
-    return 0;
+	return 0;
 }
 
-static void __exit simplefifo_dev_exit(void) {
-    platform_device_unregister(simplefifo_pdev);
+static void __exit simplefifo_dev_exit(void)
+{
+	platform_device_unregister(simplefifo_pdev);
 }
 
 module_init(simplefifo_dev_init);
