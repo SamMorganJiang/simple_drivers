@@ -7,6 +7,7 @@
  */
 
 #include <linux/cdev.h>
+#include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/init.h>
@@ -24,6 +25,8 @@
 #define FIFO_CLEAR          0x1
 
 static struct simplefifo_dev {
+	struct file *filp;
+	struct inode *inode;
 	struct miscdevice miscdev;
 	unsigned char fifo[SIMPLEFIFO_SIZE];
 };
@@ -39,7 +42,6 @@ static int simplefifo_open(struct inode *inode, struct file *filp)
 	}
 
 	filp->private_data = (void *)sf;
-
 	return 0;
 }
 
@@ -171,7 +173,20 @@ static int simplefifo_probe(struct platform_device *pdev)
 	if (ret < 0)
 		goto err;
 
+	sf->filp = filp_open("/dev/simplefifo", O_RDONLY, 0);
+	if (IS_ERR(sf->filp)) {
+		pr_err(KERN_INFO "file open failed!\n");
+		goto file_err;
+	}
+	sf->inode = sf->filp->f_dentry->d_inode;
+	sf->inode->i_mode = S_IRWXUGO;
+	filp_close(sf->filp, NULL);
+
 	dev_info(&pdev->dev, "simplefifo probe end!\n");
+	return ret;
+
+file_err:
+	misc_deregister(&sf->miscdev);
 err:
 	return ret;
 }
