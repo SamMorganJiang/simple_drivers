@@ -12,13 +12,21 @@
 #include <linux/types.h>
 #include <linux/init.h>
 #include <linux/fs.h>
+#include <linux/slab.h>
+#include <linux/init.h>
 #include <linux/sched.h>
 #include <linux/errno.h>
 #include <linux/mm.h>
 #include <linux/miscdevice.h>
 #include <linux/platform_device.h>
+#include <linux/of_device.h>
 #include <linux/atomic.h>
+#include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
+#include <linux/uaccess.h>
+#else
 #include <asm/uaccess.h>
+#endif
 
 #define SIMPLEFIFO_NAME     "simplefifo"
 #define SIMPLEFIFO_SIZE     0x1000
@@ -178,7 +186,11 @@ static int simplefifo_probe(struct platform_device *pdev)
 		pr_err(KERN_INFO "file open failed!\n");
 		goto file_err;
 	}
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
+	sf->inode = sf->filp->f_path.dentry->d_inode;
+#else
 	sf->inode = sf->filp->f_dentry->d_inode;
+#endif
 	sf->inode->i_mode = S_IRWXUGO;
 	filp_close(sf->filp, NULL);
 
