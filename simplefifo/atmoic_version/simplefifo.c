@@ -191,7 +191,7 @@ static int simplefifo_probe(struct platform_device *pdev)
 #else
 	sf->inode = sf->filp->f_dentry->d_inode;
 #endif
-	sf->inode->i_mode = S_IRWXUGO;
+	sf->inode->i_mode |= S_IRWXUGO;
 	filp_close(sf->filp, NULL);
 
 	dev_info(&pdev->dev, "simplefifo probe end!\n");
