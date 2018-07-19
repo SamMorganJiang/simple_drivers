@@ -36,6 +36,8 @@ static struct simplefifo_dev {
 	struct file *filp;
 	struct inode *inodp;
 	struct miscdevice miscdev;
+	struct mutex mutex;
+	spinlock_t spinlock;
 	unsigned char fifo[SIMPLEFIFO_SIZE];
 };
 
@@ -63,6 +65,8 @@ static ssize_t simplefifo_read(struct file *filp, char __user *buf,
 	if (count > SIMPLEFIFO_SIZE - *ppos)
 		count = SIMPLEFIFO_SIZE - *ppos;
 
+	mutex_lock(&sf->mutex);
+
 	if (copy_to_user(buf, sf->fifo + *ppos, count))
 		ret = -EFAULT;
 	else {
@@ -70,6 +74,8 @@ static ssize_t simplefifo_read(struct file *filp, char __user *buf,
 		ret = count;
 		pr_info(KERN_INFO "read %u bytes form %lu\n", count, *ppos);
 	}
+
+	mutex_unlock(&sf->mutex);
 
 	return ret;
 }
@@ -88,6 +94,8 @@ static ssize_t simplefifo_write(struct file *filp, const char __user *buf,
 	if (count > SIMPLEFIFO_SIZE - *ppos)
 		count = SIMPLEFIFO_SIZE - *ppos;
 
+	mutex_lock(&sf->mutex);
+
 	if (copy_from_user(sf->fifo + *ppos, buf, count))
 		ret = -EFAULT;
 	else {
@@ -95,6 +103,8 @@ static ssize_t simplefifo_write(struct file *filp, const char __user *buf,
 		ret = count;
 		pr_info(KERN_INFO "write %u bytes to %lu\n", count, *ppos);
 	}
+
+	mutex_unlock(&sf->mutex);
 
 	return ret;
 }
@@ -105,6 +115,8 @@ static long simplefifo_ioctl(struct file *filp, unsigned int cmd,
 	struct simplefifo_dev *sf = container_of(filp->private_data,
 		struct simplefifo_dev, miscdev);
 
+	mutex_lock(&sf->mutex);
+
 	switch (cmd) {
 		case FIFO_CLEAR:
 			memset(sf->fifo, 0, SIMPLEFIFO_SIZE);
@@ -114,12 +126,18 @@ static long simplefifo_ioctl(struct file *filp, unsigned int cmd,
 			return -EINVAL;
 	}
 
+	mutex_unlock(&sf->mutex);
+
 	return 0;
 }
 
 static loff_t simplefifo_llseek(struct file *filp, loff_t offset, int orig)
 {
 	loff_t ret = 0;
+	struct simplefifo_dev *sf = container_of(filp->private_data,
+		struct simplefifo_dev, miscdev);
+
+	mutex_lock(&sf->mutex);
 
 	switch (orig) {
 		case 0:
@@ -142,6 +160,8 @@ static loff_t simplefifo_llseek(struct file *filp, loff_t offset, int orig)
 			ret = -EINVAL;
 			break;
 	}
+
+	mutex_unlock(&sf->mutex);
 
 	return ret;
 }
@@ -168,6 +188,7 @@ static int simplefifo_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	platform_set_drvdata(pdev, sf);
+	mutex_init(&sf->mutex);
 
 	sf->miscdev.minor = MISC_DYNAMIC_MINOR;
 	sf->miscdev.name  = SIMPLEFIFO_NAME;
@@ -191,7 +212,7 @@ static int simplefifo_probe(struct platform_device *pdev)
 	filp_close(sf->filp, NULL);
 
 	dev_info(&pdev->dev, "simplefifo probe end!\n");
-	return ret;
+	return 0;
 
 file_err:
 	misc_deregister(&sf->miscdev);
