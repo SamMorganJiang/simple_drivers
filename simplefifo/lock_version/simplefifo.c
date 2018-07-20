@@ -67,16 +67,17 @@ static ssize_t simplefifo_read(struct file *filp, char __user *buf,
 
 	mutex_lock(&sf->mutex);
 
-	if (copy_to_user(buf, sf->fifo + *ppos, count))
+	if (copy_to_user(buf, sf->fifo + *ppos, count)) {
 		ret = -EFAULT;
-	else {
+		goto err;
+	} else {
 		*ppos += count;
 		ret = count;
 		pr_info(KERN_INFO "read %u bytes form %lu\n", count, *ppos);
 	}
 
+err:
 	mutex_unlock(&sf->mutex);
-
 	return ret;
 }
 
@@ -96,16 +97,17 @@ static ssize_t simplefifo_write(struct file *filp, const char __user *buf,
 
 	mutex_lock(&sf->mutex);
 
-	if (copy_from_user(sf->fifo + *ppos, buf, count))
+	if (copy_from_user(sf->fifo + *ppos, buf, count)) {
 		ret = -EFAULT;
-	else {
+		goto err;
+	} else {
 		*ppos += count;
 		ret = count;
 		pr_info(KERN_INFO "write %u bytes to %lu\n", count, *ppos);
 	}
 
+err:
 	mutex_unlock(&sf->mutex);
-
 	return ret;
 }
 
@@ -115,18 +117,17 @@ static long simplefifo_ioctl(struct file *filp, unsigned int cmd,
 	struct simplefifo_dev *sf = container_of(filp->private_data,
 		struct simplefifo_dev, miscdev);
 
-	mutex_lock(&sf->mutex);
-
 	switch (cmd) {
 		case FIFO_CLEAR:
+			mutex_lock(&sf->mutex);
 			memset(sf->fifo, 0, SIMPLEFIFO_SIZE);
+			mutex_unlock(&sf->mutex);
+
 			pr_info(KERN_INFO "simplefifo is cleared\n");
 			break;
 		default:
 			return -EINVAL;
 	}
-
-	mutex_unlock(&sf->mutex);
 
 	return 0;
 }
@@ -187,9 +188,6 @@ static int simplefifo_probe(struct platform_device *pdev)
 	if (!sf)
 		return -ENOMEM;
 
-	platform_set_drvdata(pdev, sf);
-	mutex_init(&sf->mutex);
-
 	sf->miscdev.minor = MISC_DYNAMIC_MINOR;
 	sf->miscdev.name  = SIMPLEFIFO_NAME;
 	sf->miscdev.fops  = &simplefifo_fops;
@@ -197,6 +195,9 @@ static int simplefifo_probe(struct platform_device *pdev)
 	ret = misc_register(&sf->miscdev);
 	if (ret < 0)
 		goto err;
+
+	mutex_init(&sf->mutex);
+	platform_set_drvdata(pdev, sf);
 
 	sf->filp = filp_open("/dev/simplefifo", O_RDONLY, 0);
 	if (IS_ERR(sf->filp)) {
