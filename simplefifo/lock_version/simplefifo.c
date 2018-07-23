@@ -32,6 +32,8 @@
 #define SIMPLEFIFO_SIZE     0x1000
 #define FIFO_CLEAR          0x1
 
+#define USE_MUTEX           1
+
 static struct simplefifo_dev {
 	struct file *filp;
 	struct inode *inodp;
@@ -65,7 +67,9 @@ static ssize_t simplefifo_read(struct file *filp, char __user *buf,
 	if (count > SIMPLEFIFO_SIZE - *ppos)
 		count = SIMPLEFIFO_SIZE - *ppos;
 
+#if USE_MUTEX
 	mutex_lock(&sf->mutex);
+#endif
 
 	if (copy_to_user(buf, sf->fifo + *ppos, count)) {
 		ret = -EFAULT;
@@ -77,7 +81,9 @@ static ssize_t simplefifo_read(struct file *filp, char __user *buf,
 	}
 
 err:
+#if USE_MUTEX
 	mutex_unlock(&sf->mutex);
+#endif
 	return ret;
 }
 
@@ -95,7 +101,9 @@ static ssize_t simplefifo_write(struct file *filp, const char __user *buf,
 	if (count > SIMPLEFIFO_SIZE - *ppos)
 		count = SIMPLEFIFO_SIZE - *ppos;
 
+#if USE_MUTEX
 	mutex_lock(&sf->mutex);
+#endif
 
 	if (copy_from_user(sf->fifo + *ppos, buf, count)) {
 		ret = -EFAULT;
@@ -107,7 +115,9 @@ static ssize_t simplefifo_write(struct file *filp, const char __user *buf,
 	}
 
 err:
+#if USE_MUTEX
 	mutex_unlock(&sf->mutex);
+#endif
 	return ret;
 }
 
@@ -119,9 +129,13 @@ static long simplefifo_ioctl(struct file *filp, unsigned int cmd,
 
 	switch (cmd) {
 		case FIFO_CLEAR:
+#if USE_MUTEX
 			mutex_lock(&sf->mutex);
+#endif
 			memset(sf->fifo, 0, SIMPLEFIFO_SIZE);
+#if USE_MUTEX
 			mutex_unlock(&sf->mutex);
+#endif
 
 			pr_info(KERN_INFO "simplefifo is cleared\n");
 			break;
@@ -138,7 +152,9 @@ static loff_t simplefifo_llseek(struct file *filp, loff_t offset, int orig)
 	struct simplefifo_dev *sf = container_of(filp->private_data,
 		struct simplefifo_dev, miscdev);
 
+#if USE_MUTEX
 	mutex_lock(&sf->mutex);
+#endif
 
 	switch (orig) {
 		case 0:
@@ -162,7 +178,9 @@ static loff_t simplefifo_llseek(struct file *filp, loff_t offset, int orig)
 			break;
 	}
 
+#if USE_MUTEX
 	mutex_unlock(&sf->mutex);
+#endif
 
 	return ret;
 }
@@ -196,7 +214,9 @@ static int simplefifo_probe(struct platform_device *pdev)
 	if (ret < 0)
 		goto err;
 
+#if USE_MUTEX
 	mutex_init(&sf->mutex);
+#endif
 	platform_set_drvdata(pdev, sf);
 
 	sf->filp = filp_open("/dev/simplefifo", O_RDONLY, 0);

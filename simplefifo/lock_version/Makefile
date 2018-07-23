@@ -1,5 +1,7 @@
 KVERS = $(shell uname -r)
 
+CONFIG_DEBUG_MUTEX=y
+CONFIG_DETECT_HUNG_TASKS=y
 # Kernel modules
 obj-m += simplefifo.o simplefifo_dev.o
 
