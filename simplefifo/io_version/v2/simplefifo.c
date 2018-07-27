@@ -59,10 +59,8 @@ static ssize_t simplefifo_read(struct file *filp, char __user *buf,
 	struct simplefifo_dev *sf = container_of(filp->private_data,
 		struct simplefifo_dev, miscdev);
 
-	DECLARE_WAITQUEUE(wq, current);
-	add_wait_queue(&sf->r_wait, &wq);
-
 	wait_event_interruptible(sf->r_wait, sf->current_len != 0);
+	mutex_lock(&sf->mutex);
 
 	if (count > sf->current_len)
 		count = sf->current_len;
@@ -80,10 +78,8 @@ static ssize_t simplefifo_read(struct file *filp, char __user *buf,
 
 		ret = count;
 	}
-
 err:
-	remove_wait_queue(&sf->r_wait, &wq);
-	__set_current_state(TASK_RUNNING);
+	mutex_unlock(&sf->mutex);
 	return ret;
 }
 
@@ -94,10 +90,8 @@ static ssize_t simplefifo_write(struct file *filp, const char __user *buf,
 	struct simplefifo_dev *sf = container_of(filp->private_data,
 		struct simplefifo_dev, miscdev);
 
-	DECLARE_WAITQUEUE(wq, current);
-	add_wait_queue(&sf->w_wait, &wq);
-
 	wait_event_interruptible(sf->w_wait, sf->current_len != SIMPLEFIFO_SIZE);
+	mutex_lock(&sf->mutex);
 
 	if (count > SIMPLEFIFO_SIZE - sf->current_len)
 		count = SIMPLEFIFO_SIZE - sf->current_len;
@@ -114,10 +108,8 @@ static ssize_t simplefifo_write(struct file *filp, const char __user *buf,
 
 		ret = count;
 	}
-
 err:
-	remove_wait_queue(&sf->w_wait, &wq);
-	__set_current_state(TASK_RUNNING);
+	mutex_unlock(&sf->mutex);
 	return ret;
 }
 
