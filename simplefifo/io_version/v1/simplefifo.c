@@ -12,6 +12,7 @@
 #include <linux/init.h>
 #include <linux/fs.h>
 #include <linux/slab.h>
+#include <linux/poll.h>
 #include <linux/init.h>
 #include <linux/sched.h>
 #include <linux/errno.h>
@@ -159,6 +160,27 @@ err:
 	return ret;
 }
 
+static unsigned int simplefifo_poll(struct file *filp, poll_table *wait)
+{
+	unsigned int mask = 0;
+	struct simplefifo_dev *sf = container_of(filp->private_data,
+		struct simplefifo_dev, miscdev);
+
+	mutex_lock(&sf->mutex);
+
+	poll_wait(filp, &sf->r_wait, wait);
+	poll_wait(filp, &sf->w_wait, wait);
+
+	if (sf->current_len != 0)
+		mask |= POLLIN | POLLRDNORM;
+
+	if (sf->current_len != 0)
+		mask |= POLLOUT | POLLRDNORM;
+
+	mutex_unlock(&sf->mutex);
+	return mask;
+}
+
 static long simplefifo_ioctl(struct file *filp, unsigned int cmd,
 				unsigned long arg)
 {
@@ -188,6 +210,7 @@ static const struct file_operations simplefifo_fops = {
 	.release        = simplefifo_release,
 	.read           = simplefifo_read,
 	.write          = simplefifo_write,
+	.poll           = simplefifo_poll,
 	.unlocked_ioctl	= simplefifo_ioctl,
 };
 
