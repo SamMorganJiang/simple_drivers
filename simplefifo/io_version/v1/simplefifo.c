@@ -37,11 +37,20 @@ static struct simplefifo_dev {
 	struct mutex mutex;
 	struct inode *inodp;
 	struct file *filp;
+	struct fasync_struct *async_queue;
 	wait_queue_head_t r_wait;
 	wait_queue_head_t w_wait;
 	unsigned int current_len;
 	unsigned char fifo[SIMPLEFIFO_SIZE];
 };
+
+static int simplefifo_fasync(int fd, struct file *filp, int mode)
+{
+	struct simplefifo_dev *sf = container_of(filp->private_data,
+		struct simplefifo_dev, miscdev);
+
+	return fasync_helper(fd, filp, mode, &sf->async_queue);
+}
 
 static int simplefifo_open(struct inode *inode, struct file *filp)
 {
@@ -50,6 +59,7 @@ static int simplefifo_open(struct inode *inode, struct file *filp)
 
 static int simplefifo_release(struct inode *inode, struct file *filp)
 {
+	simplefifo_fasync(-1, filp, 0);
 	return 0;
 }
 
@@ -95,6 +105,11 @@ static ssize_t simplefifo_read(struct file *filp, char __user *buf,
 			count, sf->current_len);
 
 		wake_up_interruptible(&sf->w_wait);
+
+		if (sf->async_queue) {
+			kill_fasync(&sf->async_queue, SIGIO, POLL_OUT);
+			pr_debug(KERN_DEBUG, "%s kill SIGIO POLL_OUT\n", __func__);
+		}
 
 		ret = count;
 	}
@@ -148,6 +163,11 @@ static ssize_t simplefifo_write(struct file *filp, const char __user *buf,
 			count, sf->current_len);
 
 		wake_up_interruptible(&sf->r_wait);
+
+		if (sf->async_queue) {
+			kill_fasync(&sf->async_queue, SIGIO, POLL_IN);
+			pr_debug(KERN_DEBUG, "%s kill SIGIO POLL_IN\n", __func__);
+		}
 
 		ret = count;
 	}
@@ -212,6 +232,7 @@ static const struct file_operations simplefifo_fops = {
 	.write          = simplefifo_write,
 	.poll           = simplefifo_poll,
 	.unlocked_ioctl	= simplefifo_ioctl,
+	.fasync         = simplefifo_fasync,
 };
 
 static int simplefifo_probe(struct platform_device *pdev)
