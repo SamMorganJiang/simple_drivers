@@ -6,22 +6,23 @@
  * Licensed under GPLv2 or later.
  */
 
-#include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/init.h>
-#include <linux/fs.h>
 #include <linux/slab.h>
 #include <linux/poll.h>
 #include <linux/init.h>
-#include <linux/sched.h>
 #include <linux/errno.h>
-#include <linux/mm.h>
 #include <linux/miscdevice.h>
 #include <linux/platform_device.h>
 #include <linux/of_device.h>
-#include <linux/atomic.h>
 #include <linux/version.h>
+#include <linux/sched.h>
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
+#include <linux/sched/signal.h>
+#endif
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
 #include <linux/uaccess.h>
 #else
