@@ -1,0 +1,164 @@
+diff --git a/arch/arm64/boot/dts/x9.dts b/arch/arm64/boot/dts/x9.dts
+index ca57d13..beb4e24 100755
+--- a/arch/arm64/boot/dts/x9.dts
++++ b/arch/arm64/boot/dts/x9.dts
+@@ -270,6 +270,10 @@
+ 		firlen					= <0>;
+ 		is_batch_supported		= <0>;
+ 	};
++
++	vanzo_misc_drv: vanzo_misc_drv {
++		compatible = "vanzo, vanzo_misc_drv";
++	};
+ };
+ /* sensor gpio standization */
+ &pio {
+@@ -715,7 +719,7 @@ gdfp_fp_ldo3v3_off: state_fp_ldo3v3_off{
+ 	};
+ 	accdet_pins_eint_as_int: accdeteint@0 {
+ 		pins_cmd_dat {
+-			pins = <PINMUX_GPIO92__FUNC_EINT15>;
++			pins = <PINMUX_GPIO91__FUNC_GPIO91>;
+ 			slew-rate = <0>;
+ 			bias-disable;
+ 		};
+@@ -1777,3 +1781,139 @@ gdfp_fp_ldo3v3_off: state_fp_ldo3v3_off{
+     status = "okay";
+ };
+ /* Hall end*/
++
++/*vanzo misc drv start*/
++&pio {
++	default: default{
++	};
++
++	vanzo_pins_otg_enable: otg@1 {
++		pins_cmd_dat {
++			pins = <PINMUX_GPIO43__FUNC_GPIO43>;
++			slew-rate = <1>;
++			output-high;
++		};
++	};
++	vanzo_pins_otg_disable: otg@0 {
++		pins_cmd_dat {
++			pins = <PINMUX_GPIO43__FUNC_GPIO43>;
++			slew-rate = <1>;
++			output-low;
++		};
++	};
++
++	vanzo_pins_led_x_enable: ledx@1 {
++		pins_cmd_dat {
++			pins = <PINMUX_GPIO73__FUNC_GPIO73>;
++			slew-rate = <1>;
++			output-high;
++		};
++	};
++	vanzo_pins_led_x_disable: ledx@0 {
++		pins_cmd_dat {
++			pins = <PINMUX_GPIO73__FUNC_GPIO73>;
++			slew-rate = <1>;
++			output-low;
++		};
++	};
++
++	vanzo_pins_led_y_enable: ledy@1 {
++		pins_cmd_dat {
++			pins = <PINMUX_GPIO256__FUNC_GPIO256>;
++			slew-rate = <1>;
++			output-high;
++		};
++	};
++	vanzo_pins_led_y_disable: ledy@0 {
++		pins_cmd_dat {
++			pins = <PINMUX_GPIO256__FUNC_GPIO256>;
++			slew-rate = <1>;
++			output-low;
++		};
++	};
++
++	vanzo_pins_fan_1v8_enable: fan1v8@1 {
++		pins_cmd_dat {
++			pins = <PINMUX_GPIO92__FUNC_GPIO92>;
++			slew-rate = <1>;
++			output-high;
++		};
++	};
++	vanzo_pins_fan_1v8_disable: fan1v8@0 {
++		pins_cmd_dat {
++			pins = <PINMUX_GPIO92__FUNC_GPIO92>;
++			slew-rate = <1>;
++			output-low;
++		};
++	};
++
++	vanzo_pins_fan_5v_enable: fan5v@1 {
++		pins_cmd_dat {
++			pins = <PINMUX_GPIO107__FUNC_GPIO107>;
++			slew-rate = <1>;
++			output-high;
++		};
++	};
++	vanzo_pins_fan_5v_disable: fan5v@0 {
++		pins_cmd_dat {
++			pins = <PINMUX_GPIO107__FUNC_GPIO107>;
++			slew-rate = <1>;
++			output-low;
++		};
++	};
++
++	vanzo_pins_fan_pwm_enable: fanpwm@1 {
++		pins_cmd_dat {
++			pins = <PINMUX_GPIO108__FUNC_PWM_A>;
++			slew-rate = <1>;
++			output-high;
++		};
++	};
++	vanzo_pins_fan_pwm_disable: fanpwm@0 {
++		pins_cmd_dat {
++			pins = <PINMUX_GPIO108__FUNC_PWM_A>;
++			slew-rate = <1>;
++			output-low;
++		};
++	};
++};
++
++&vanzo_misc_drv {
++	interrupt-parent = <&eintc>;
++	interrupts = <106 IRQ_TYPE_LEVEL_LOW>,
++			<109 IRQ_TYPE_LEVEL_LOW>;
++	/*interrupts = <106 109>;*/
++	interrupt-names = "F11-eint", "F12-eint";
++	debounce = <128000 128000>;
++
++	pinctrl-names = "default",
++			"otg_enable",
++			"otg_disable",
++			"led_x_enable",
++			"led_x_disable",
++			"led_y_enable",
++			"led_y_disable",
++			"fan_1v8_enable",
++			"fan_1v8_disable",
++			"fan_5v_enable",
++			"fan_5v_disable",
++			"fan_pwm_enable",
++			"fan_pwm_disable";
++
++	pinctrl-0 =  <&default>;
++	pinctrl-1 =  <&vanzo_pins_otg_enable>;
++	pinctrl-2 =  <&vanzo_pins_otg_disable>;
++	pinctrl-3 =  <&vanzo_pins_led_x_enable>;
++	pinctrl-4 =  <&vanzo_pins_led_x_disable>;
++	pinctrl-5 =  <&vanzo_pins_led_y_enable>;
++	pinctrl-6 =  <&vanzo_pins_led_y_disable>;
++	pinctrl-7 =  <&vanzo_pins_fan_1v8_enable>;
++	pinctrl-8 =  <&vanzo_pins_fan_1v8_disable>;
++	pinctrl-9 =  <&vanzo_pins_fan_5v_enable>;
++	pinctrl-10 = <&vanzo_pins_fan_5v_disable>;
++	pinctrl-11 = <&vanzo_pins_fan_pwm_enable>;
++	pinctrl-12 = <&vanzo_pins_fan_pwm_disable>;
++
++	status = "okay";
++};
++/*vanzo misc drv end*/
