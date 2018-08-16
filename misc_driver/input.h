@@ -15,6 +15,7 @@
 struct input_module {
 	struct input_dev        *dev;
 	unsigned int code[EVENT_NUM];
+	unsigned int *list;
 };
 
 enum KEY_STATE {
@@ -24,7 +25,6 @@ enum KEY_STATE {
 
 enum RETURN input_device_init(struct input_module *input);
 void input_event_state_report(struct input_module *input, unsigned int code, int value);
-extern unsigned int input_event_list[EVENT_NUM];
 
 
 #endif

@@ -14,8 +14,9 @@ static struct irq_module_name irq_namespace_list[VANZO_IRQ_NAME_NUM] = { NULL };
 static void global_tasklet_handler(unsigned long data)
 {
 	int i;
-	struct vanzo_drv_struct *v    = v_global;
-	struct irq_module       *irqm = &v->irq;
+	struct vanzo_drv_struct *v        = v_global;
+	struct irq_module       *irqm     = &v->irq;
+	unsigned int            *list     = v->input.list;
 
 	KP_INF("[%s] start\n", __func__);
 
@@ -25,14 +26,14 @@ static void global_tasklet_handler(unsigned long data)
 				case IRQ_STATE_UP:
 					irq_set_irq_type(irqm->irq_num[i], IRQF_TRIGGER_HIGH);
 					irqm->irq_state[i] = IRQ_STATE_DOWN;
-					input_event_state_report(&v->input, input_event_list[i], KEY_STATE_DOWN);
+					input_event_state_report(&v->input, list[i], KEY_STATE_DOWN);
 					KP_DBG("[%s] irq(%d) state down\n", __func__, irqm->irq_num[i]);
 					break;
 
 				case IRQ_STATE_DOWN:
 					irq_set_irq_type(irqm->irq_num[i], IRQF_TRIGGER_LOW);
 					irqm->irq_state[i] = IRQ_STATE_UP;
-					input_event_state_report(&v->input, input_event_list[i], KEY_STATE_UP);
+					input_event_state_report(&v->input, list[i], KEY_STATE_UP);
 					KP_DBG("[%s] irq(%d) state up\n", __func__, irqm->irq_num[i]);
 					break;
 			}
@@ -44,14 +45,6 @@ static void global_tasklet_handler(unsigned long data)
 }
 
 static DECLARE_TASKLET(global_tasklet, global_tasklet_handler, 0);
-
-static irqreturn_t irq_handler(int irq, void *dev_id)
-{
-	current_irq_num = irq;
-	tasklet_schedule(&global_tasklet);
-
-	return IRQ_HANDLED;
-}
 
 static irqreturn_t key_f11_eint_handler(int irq, void *dev_id)
 {
@@ -124,16 +117,13 @@ enum RETURN irq_request_init(struct irq_module *irq)
 			gpio_set_debounce(irq->irq_num[i], deb);
 		}
 
+		/* Allocate handler for each irq */
 		irq->eint_handler[i] = handler[i];
-#if 1
+
+		/* Request irq for device */
 		if (request_irq(irq->irq_num[i],
 				irq->eint_handler[i], IRQF_TRIGGER_LOW,
 				name->irq_name_space, NULL)) {
-#else
-		if (request_irq(irq->irq_num[i],
-				irq_handler, IRQF_TRIGGER_LOW,
-				name->irq_name_space, NULL)) {
-#endif
 			KP_ERR("[%s] irq(%d) is not available\n", __func__, i);
 			ret = RETURN_ERROR;
 			goto err;

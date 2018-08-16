@@ -11,7 +11,7 @@
 #include "core.h"
 
 //=================================================================//
-unsigned int input_event_list[EVENT_NUM] = {
+static unsigned int input_event_list[EVENT_NUM] = {
 	KEY_F11,
 	KEY_F12,
 
@@ -30,6 +30,7 @@ enum RETURN input_device_init(struct input_module *input)
 	if (!input->dev)
 		return -ENOMEM;
 
+	input->list = input_event_list;
 	input->dev->name = VANZO_INPUT_NAME;
 	set_bit(EV_KEY, input->dev->evbit);
 
