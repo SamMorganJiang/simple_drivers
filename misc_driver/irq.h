@@ -17,6 +17,7 @@ struct irq_module_name {
 
 struct irq_module {
 	int                     irq_num[VANZO_IRQ_NAME_NUM];
+	int                     irq_source[VANZO_IRQ_NAME_NUM];
 	int                     irq_state[VANZO_IRQ_NAME_NUM];
 	struct irq_module_name  *name;
 	struct device_node      *irq_node;

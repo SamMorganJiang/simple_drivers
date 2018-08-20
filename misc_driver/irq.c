@@ -88,7 +88,7 @@ enum RETURN irq_request_init(struct irq_module *irq)
 	for (i = 0; i < VANZO_IRQ_NAME_NUM; i++, name++) {
 		/* Parse the irq number */
 		if (irq->irq_num[i] = irq_of_parse_and_map(irq->irq_node, i))
-			KP_DBG("[%s] irq(%d) num is %d\n", __func__, i, irq->irq_num[i]);
+			KP_DBG("[%s] irq(%d) number is %d\n", __func__, i, irq->irq_num[i]);
 		else {
 			KP_ERR("[%s] irq(%d) parse error!", __func__, i);
 			ret = RETURN_ERROR;
@@ -102,20 +102,28 @@ enum RETURN irq_request_init(struct irq_module *irq)
 			KP_ERR("[%s] irq(%d) name parse error!", __func__, i);
 			ret = RETURN_ERROR;
 			goto err;
-		} else {
+		} else
 			KP_DBG("[%s] irq(%d) name is %s\n", __func__, i, name->irq_name_space);
-		}
+
+		/* Parse the irq source */
+		if (of_property_read_u32_index(irq->irq_node, "source", i, &irq->irq_source[i])) {
+			KP_ERR("[%s] irq(%d) source parse error!\n", __func__, i);
+			ret = RETURN_ERROR;
+			goto err;
+		} else
+			KP_DBG("[%s] irq(%d) source is %d\n", __func__, i, irq->irq_source[i]);
 
 		/* Parse the irq debounce */
 		if (of_property_read_u32_index(irq->irq_node, "debounce", i, &deb)) {
 			KP_ERR("[%s] irq(%d) debounce parse error!", __func__, i);
 			ret = RETURN_ERROR;
 			goto err;
-		} else {
+		} else
 			KP_DBG("[%s] irq(%d) debounce is %d\n", __func__, i, deb);
-			gpio_request(irq->irq_num[i], name->irq_name_space);
-			gpio_set_debounce(irq->irq_num[i], deb);
-		}
+
+		/* Bind irq source and debounce */
+		gpio_request(irq->irq_source[i], name->irq_name_space);
+		gpio_set_debounce(irq->irq_source[i], deb);
 
 		/* Allocate handler for each irq */
 		irq->eint_handler[i] = handler[i];

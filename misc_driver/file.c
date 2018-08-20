@@ -12,7 +12,14 @@
 
 static int otg_state;
 static int led_x_state, led_y_state;
+static int flash_x_state, flash_y_state;
 static int fan_state, fan_speed;
+
+extern struct i2c_client *LM3643_i2c_client;
+extern void open_lm3643_led1(void);
+extern void close_lm3643_led1(void);
+extern void open_lm3643_led2(void);
+extern void close_lm3643_led2(void);
 
 //=================================================================//
 static ssize_t otg_ctrl_show(struct class *dev,
@@ -47,15 +54,54 @@ static ssize_t led_ctrl_store(struct class *dev,
 	struct vanzo_drv_struct *v = v_global;
 
 	if (buf[0] == 'x') {
-		if (buf[1] == '0')
+		if (buf[1] == '0') {
 			gpio_state_set(&v->gpio, LED_X, PIN_STATE_LOW);
-		else
+			led_x_state = 0;
+		} else {
 			gpio_state_set(&v->gpio, LED_X, PIN_STATE_HIGH);
+			led_x_state = 1;
+		}
 	} else if (buf[0] == 'y') {
-		if (buf[1] == '0')
+		if (buf[1] == '0') {
 			gpio_state_set(&v->gpio, LED_Y, PIN_STATE_LOW);
-		else
+			led_y_state = 0;
+		} else {
 			gpio_state_set(&v->gpio, LED_Y, PIN_STATE_HIGH);
+			led_y_state = 1;
+		}
+	}
+
+	return count;
+}
+
+//=================================================================//
+static ssize_t flash_ctrl_show(struct class *dev,
+	struct class_attribute *attr, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "x state: %d ; y state:%d\n", flash_x_state, flash_y_state);
+}
+
+static ssize_t flash_ctrl_store(struct class *dev,
+	struct class_attribute *attr, const char *buf, size_t count)
+{
+	struct vanzo_drv_struct *v = v_global;
+
+	if (buf[0] == 'x') {
+		if (buf[1] == '0') {
+			close_lm3643_led1();
+			flash_x_state = 0;
+		} else {
+			open_lm3643_led1();
+			flash_x_state = 1;
+		}
+	} else if (buf[0] == 'y') {
+		if (buf[1] == '0') {
+			close_lm3643_led2();
+			flash_y_state = 0;
+		} else {
+			open_lm3643_led2();
+			flash_y_state = 1;
+		}
 	}
 
 	return count;
@@ -101,6 +147,7 @@ static ssize_t fan_ctrl_store(struct class *dev,
 static struct class_attribute proc_file_attr[] = {
 	__ATTR(otg,     0664, otg_ctrl_show,   otg_ctrl_store),
 	__ATTR(led,     0664, led_ctrl_show,   led_ctrl_store),
+	__ATTR(flash,   0664, flash_ctrl_show, flash_ctrl_store),
 	__ATTR(fan,     0664, fan_ctrl_show,   fan_ctrl_store),
 	__ATTR_NULL
 };
