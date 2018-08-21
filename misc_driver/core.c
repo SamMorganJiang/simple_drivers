@@ -25,19 +25,19 @@ static int vanzo_misc_drv_probe(struct platform_device *pdev)
 	mutex_init(&v_global->mutex);
 
 	err = gpio_state_init(&v_global->gpio);
-	if (RETURN_SUCCESS != err)
+	if (err)
 		KP_ERR("[%s] gpio pinctrl init failed\n", __func__);
 
 	err = input_device_init(&v_global->input);
-	if (RETURN_SUCCESS != err)
+	if (err)
 		KP_ERR("[%s] input device init failed\n", __func__);
 
 	err = irq_request_init(&v_global->irq);
-	if (RETURN_SUCCESS != err)
+	if (err)
 		KP_ERR("[%s] irq request init failed\n", __func__);
 
 	err = proc_file_init(v_global->class);
-	if (RETURN_SUCCESS != err)
+	if (err)
 		KP_ERR("[%s] proc file init failed\n", __func__);
 
 	KP_INF("[%s] end\n", __func__);
