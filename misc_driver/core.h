@@ -38,7 +38,7 @@
 #define KP_ERR(fmt, arg...)                   printk(PREFIX fmt, ##arg)
 #else
 #define KP_DBG(fmt, arg...)
-#define KP_INF(fmt, arg...)                   pr_debug(PREFIX fmt, ##arg)
+#define KP_INF(fmt, arg...)                   pr_info(PREFIX fmt, ##arg)
 #define KP_ERR(fmt, arg...)                   pr_err(PREFIX fmt, ##arg)
 #endif
 

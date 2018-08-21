@@ -11,69 +11,60 @@
 static int current_irq_num;
 static struct irq_module_name irq_namespace_list[VANZO_IRQ_NAME_NUM] = { NULL };
 
+static void global_tasklet_handler(unsigned long data);
+static DECLARE_TASKLET(global_tasklet, global_tasklet_handler, 0);
+
+static void irq_state_handler(struct irq_module *irqm, int i)
+{
+	switch (irqm->irq_state[i]) {
+		case IRQ_STATE_UP:
+			irq_set_irq_type(irqm->irq_num[i], IRQF_TRIGGER_HIGH);
+			irqm->irq_state[i] = IRQ_STATE_DOWN;
+			IRQ_NOTIFY(irqm, i, KEY_STATE_DOWN);
+			KP_DBG("[%s] irq(%d) state down\n", __func__, irqm->irq_num[i]);
+			break;
+
+		case IRQ_STATE_DOWN:
+			irq_set_irq_type(irqm->irq_num[i], IRQF_TRIGGER_LOW);
+			irqm->irq_state[i] = IRQ_STATE_UP;
+			IRQ_NOTIFY(irqm, i, KEY_STATE_UP);
+			KP_DBG("[%s] irq(%d) state up\n", __func__, irqm->irq_num[i]);
+			break;
+
+		default:
+			KP_DBG("[%s] unknown irq state\n", __func__);
+			break;
+	}
+}
+
 static void global_tasklet_handler(unsigned long data)
 {
 	int i;
-	struct vanzo_drv_struct *v        = v_global;
-	struct irq_module       *irqm     = &v->irq;
-	unsigned int            *list     = v->input.list;
+	struct irq_module       *irqm     = &v_global->irq;
 
 	KP_INF("[%s] start\n", __func__);
 
 	for (i = 0; i < VANZO_IRQ_NAME_NUM; i++) {
 		if (current_irq_num == irqm->irq_num[i]) {
-			switch (irqm->irq_state[i]) {
-				case IRQ_STATE_UP:
-					irq_set_irq_type(irqm->irq_num[i], IRQF_TRIGGER_HIGH);
-					irqm->irq_state[i] = IRQ_STATE_DOWN;
-					input_event_state_report(&v->input, list[i], KEY_STATE_DOWN);
-					KP_DBG("[%s] irq(%d) state down\n", __func__, irqm->irq_num[i]);
-					break;
-
-				case IRQ_STATE_DOWN:
-					irq_set_irq_type(irqm->irq_num[i], IRQF_TRIGGER_LOW);
-					irqm->irq_state[i] = IRQ_STATE_UP;
-					input_event_state_report(&v->input, list[i], KEY_STATE_UP);
-					KP_DBG("[%s] irq(%d) state up\n", __func__, irqm->irq_num[i]);
-					break;
-			}
-
+			irq_state_handler(irqm, i);
 			enable_irq(irqm->irq_num[i]);
 			break;
 		}
 	}
 }
 
-static DECLARE_TASKLET(global_tasklet, global_tasklet_handler, 0);
-
-static irqreturn_t key_f11_eint_handler(int irq, void *dev_id)
-{
-	disable_irq_nosync(irq);
-	current_irq_num = irq;
-	tasklet_schedule(&global_tasklet);
-
-	return IRQ_HANDLED;
-}
-
-static irqreturn_t key_f12_eint_handler(int irq, void *dev_id)
-{
-	disable_irq_nosync(irq);
-	current_irq_num = irq;
-	tasklet_schedule(&global_tasklet);
-
-	return IRQ_HANDLED;
-}
+static DECLARE_IRQ_HANDLER(f11);
+static DECLARE_IRQ_HANDLER(f12);
 
 static irqreturn_t (*handler[VANZO_IRQ_NAME_NUM])(int irq, void *dev_id) = {
-	&key_f11_eint_handler,
-	&key_f12_eint_handler,
+	&DECLARE_IRQ_HANDLER_NAME(f11),
+	&DECLARE_IRQ_HANDLER_NAME(f12),
 };
 
 enum RETURN irq_request_init(struct irq_module *irq)
 {
 	int i, deb;
 	int ret = RETURN_SUCCESS;
-	struct vanzo_drv_struct *v    = container_of(irq, struct vanzo_drv_struct, irq);
 	struct irq_module_name  *name = irq->name = irq_namespace_list;
 
 	KP_INF("[%s] start\n", __func__);
@@ -131,7 +122,7 @@ enum RETURN irq_request_init(struct irq_module *irq)
 		/* Request irq for device */
 		if (request_irq(irq->irq_num[i],
 				irq->eint_handler[i], IRQF_TRIGGER_LOW,
-				name->irq_name_space, NULL)) {
+				name->irq_name_space, irq)) {
 			KP_ERR("[%s] irq(%d) is not available\n", __func__, i);
 			ret = RETURN_ERROR;
 			goto err;

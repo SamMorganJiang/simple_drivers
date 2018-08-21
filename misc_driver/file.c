@@ -15,7 +15,8 @@ static int led_x_state, led_y_state;
 static int flash_x_state, flash_y_state;
 static int fan_state, fan_speed;
 
-extern struct i2c_client *LM3643_i2c_client;
+extern int init_lm3643(void);
+extern void unint_lm3643(void);
 extern void open_lm3643_led1(void);
 extern void close_lm3643_led1(void);
 extern void open_lm3643_led2(void);
@@ -84,21 +85,23 @@ static ssize_t flash_ctrl_show(struct class *dev,
 static ssize_t flash_ctrl_store(struct class *dev,
 	struct class_attribute *attr, const char *buf, size_t count)
 {
-	struct vanzo_drv_struct *v = v_global;
-
 	if (buf[0] == 'x') {
 		if (buf[1] == '0') {
 			close_lm3643_led1();
+			unint_lm3643();
 			flash_x_state = 0;
 		} else {
+			init_lm3643();
 			open_lm3643_led1();
 			flash_x_state = 1;
 		}
 	} else if (buf[0] == 'y') {
 		if (buf[1] == '0') {
 			close_lm3643_led2();
+			unint_lm3643();
 			flash_y_state = 0;
 		} else {
+			init_lm3643();
 			open_lm3643_led2();
 			flash_y_state = 1;
 		}

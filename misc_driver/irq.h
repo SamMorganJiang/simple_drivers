@@ -32,5 +32,25 @@ enum IRQ_STATE {
 
 enum RETURN irq_request_init(struct irq_module *irq);
 
+#define DECLARE_IRQ_HANDLER_NAME(name) name##_irq_handler
+
+#define DECLARE_IRQ_HANDLER(name) \
+	irqreturn_t name##_irq_handler(int irq, void *dev_id)    \
+	{                                                        \
+		disable_irq_nosync(irq);                         \
+		current_irq_num = irq;                           \
+		tasklet_schedule(&global_tasklet);               \
+		return IRQ_HANDLED;                              \
+	}
+
+#define IRQ_NOTIFY(irqm, event, state)                                      \
+	do {                                                                \
+		struct vanzo_drv_struct *v    = container_of(               \
+						(struct irq_module *)irqm,  \
+						struct vanzo_drv_struct,    \
+						irq);                       \
+		unsigned int            *list = v->input.list;              \
+		input_event_state_report(&v->input, list[event], state);    \
+	} while(0)
 
 #endif
