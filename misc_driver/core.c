@@ -8,10 +8,10 @@
 
 #include "core.h"
 
-struct vanzo_drv_struct *v_global;
+struct normal_drv_struct *v_global;
 
 //=================================================================//
-static int vanzo_misc_drv_probe(struct platform_device *pdev)
+static int normal_misc_drv_probe(struct platform_device *pdev)
 {
 	int err = 0;
 
@@ -45,7 +45,7 @@ static int vanzo_misc_drv_probe(struct platform_device *pdev)
 }
 
 //=================================================================//
-static int vanzo_misc_drv_remove(struct platform_device *pdev)
+static int normal_misc_drv_remove(struct platform_device *pdev)
 {
 	KP_INF("[%s]\n", __func__);
 
@@ -53,22 +53,22 @@ static int vanzo_misc_drv_remove(struct platform_device *pdev)
 }
 
 //=================================================================//
-static const struct of_device_id vanzo_misc_drv_of_match[] = {
+static const struct of_device_id normal_misc_drv_of_match[] = {
 	{ .compatible = VANZO_DRV_COMPATIBLE_MATCH, },
 	{},
 };
 
-static struct platform_driver vanzo_misc_driver = {
-	.probe  = vanzo_misc_drv_probe,
-	.remove = vanzo_misc_drv_remove,
+static struct platform_driver normal_misc_driver = {
+	.probe  = normal_misc_drv_probe,
+	.remove = normal_misc_drv_remove,
 	.driver = {
 		.owner          = THIS_MODULE,
 		.name           = VANZO_DRV_NAME,
-		.of_match_table = vanzo_misc_drv_of_match,
+		.of_match_table = normal_misc_drv_of_match,
 	},
 };
 
-module_platform_driver(vanzo_misc_driver);
+module_platform_driver(normal_misc_driver);
 
 MODULE_AUTHOR("Sam <sam.morgan.jiang@outlook.com>");
 MODULE_DESCRIPTION("Vanzo Misc Device Driver");

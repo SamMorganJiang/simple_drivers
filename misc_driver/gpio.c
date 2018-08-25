@@ -35,7 +35,7 @@ enum RETURN gpio_state_init(struct GPIO *gpio)
 	enum   RETURN            ret            = RETURN_SUCCESS;
 	struct GPIO              *pgpio         = gpio;
 	struct GPIO_PINCTRL      *pgpio_pinctrl = gpio_namespace_list;
-	struct vanzo_drv_struct  *v             = container_of(gpio, struct vanzo_drv_struct, gpio);
+	struct normal_drv_struct  *v            = container_of(gpio, struct normal_drv_struct, gpio);
 
 	pgpio->ppinctrl = devm_pinctrl_get(&v->pdev->dev);
 	if (IS_ERR(pgpio->ppinctrl)) {

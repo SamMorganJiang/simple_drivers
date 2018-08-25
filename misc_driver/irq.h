@@ -45,9 +45,9 @@ enum RETURN irq_request_init(struct irq_module *irq);
 
 #define IRQ_NOTIFY(irqm, event, state)                                      \
 	do {                                                                \
-		struct vanzo_drv_struct *v    = container_of(               \
+		struct normal_drv_struct *v   = container_of(               \
 						(struct irq_module *)irqm,  \
-						struct vanzo_drv_struct,    \
+						struct normal_drv_struct,    \
 						irq);                       \
 		unsigned int            *list = v->input.list;              \
 		input_event_state_report(&v->input, list[event], state);    \

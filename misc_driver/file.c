@@ -32,7 +32,7 @@ static ssize_t otg_ctrl_show(struct class *dev,
 static ssize_t otg_ctrl_store(struct class *dev,
 	struct class_attribute *attr, const char *buf, size_t count)
 {
-	struct vanzo_drv_struct *v = v_global;
+	struct normal_drv_struct *v = v_global;
 
 	if (buf[0] == '0')
 		gpio_state_set(&v->gpio, OTG_EN_CTL, PIN_STATE_LOW);
@@ -52,7 +52,7 @@ static ssize_t led_ctrl_show(struct class *dev,
 static ssize_t led_ctrl_store(struct class *dev,
 	struct class_attribute *attr, const char *buf, size_t count)
 {
-	struct vanzo_drv_struct *v = v_global;
+	struct normal_drv_struct *v = v_global;
 
 	if (buf[0] == 'x') {
 		if (buf[1] == '0') {
@@ -121,7 +121,7 @@ static ssize_t fan_ctrl_store(struct class *dev,
 	struct class_attribute *attr, const char *buf, size_t count)
 {
 	int speed = buf[0] - '0';
-	struct vanzo_drv_struct *v = v_global;
+	struct normal_drv_struct *v = v_global;
 
 	if (buf[0] == '0') {
 		gpio_state_set(&v->gpio, FAN_1V8, PIN_STATE_LOW);

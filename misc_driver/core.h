@@ -29,7 +29,7 @@
 #include "pwm.h"
 
 
-#define PREFIX "[vanzo_misc_drv]"
+#define PREFIX "[normal_misc_drv]"
 
 #define DEBUG_MISC_HW_K
 #ifdef DEBUG_MISC_HW_K
@@ -42,12 +42,12 @@
 #define KP_ERR(fmt, arg...)                   pr_err(PREFIX fmt, ##arg)
 #endif
 
-#define VANZO_DRV_NAME                        "vanzo_misc_drv"
-#define VANZO_CLASS_NAME                      "vanzo_drv"
-#define VANZO_INPUT_NAME                      "vanzo_input"
-#define VANZO_DRV_COMPATIBLE_MATCH            "vanzo, vanzo_misc_drv"
+#define VANZO_DRV_NAME                        "normal_misc_drv"
+#define VANZO_CLASS_NAME                      "normal_drv"
+#define VANZO_INPUT_NAME                      "normal_input"
+#define VANZO_DRV_COMPATIBLE_MATCH            "normal, normal_misc_drv"
 
-struct vanzo_drv_struct {
+struct normal_drv_struct {
 	struct GPIO               gpio;
 	struct mutex              mutex;
 	struct input_module       input;
@@ -61,6 +61,6 @@ enum RETURN {
 	RETURN_ERROR   = -1
 };
 
-extern struct vanzo_drv_struct *v_global;
+extern struct normal_drv_struct *v_global;
 
 #endif
