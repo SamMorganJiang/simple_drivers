@@ -1,5 +1,5 @@
 /*
- * Vanzo Misc Device Driver --- file subsystem
+ * Misc Device Driver --- file subsystem
  *
  * Copyright (C) 2018 Sam Morgan Jiang  (sam.morgan.jiang@outlook.com)
  *
@@ -168,7 +168,7 @@ enum RETURN proc_file_init(struct class *class)
 
 	KP_INF("[%s] start\n", __func__);
 
-	class = class_create(THIS_MODULE, VANZO_CLASS_NAME);
+	class = class_create(THIS_MODULE, CLASS_NAME);
 	if (IS_ERR(class)) {
 		KP_ERR("[%s] class_create failed\n", __func__);
 		return RETURN_ERROR;

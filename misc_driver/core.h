@@ -1,5 +1,5 @@
-#ifndef __VANZO_MISC_CTRL_H__
-#define __VANZO_MISC_CTRL_H__
+#ifndef __MISC_CTRL_H__
+#define __MISC_CTRL_H__
 
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -42,10 +42,10 @@
 #define KP_ERR(fmt, arg...)                   pr_err(PREFIX fmt, ##arg)
 #endif
 
-#define VANZO_DRV_NAME                        "normal_misc_drv"
-#define VANZO_CLASS_NAME                      "normal_drv"
-#define VANZO_INPUT_NAME                      "normal_input"
-#define VANZO_DRV_COMPATIBLE_MATCH            "normal, normal_misc_drv"
+#define DRV_NAME                        "normal_misc_drv"
+#define CLASS_NAME                      "normal_drv"
+#define INPUT_NAME                      "normal_input"
+#define DRV_COMPATIBLE_MATCH            "normal, normal_misc_drv"
 
 struct normal_drv_struct {
 	struct GPIO               gpio;

@@ -1,5 +1,5 @@
 /*
- * Vanzo Misc Device Driver --- irq subsystem
+ * Misc Device Driver --- irq subsystem
  *
  * Copyright (C) 2018 Sam Morgan Jiang  (sam.morgan.jiang@outlook.com)
  *
@@ -9,7 +9,7 @@
 #include "core.h"
 
 static int current_irq_num;
-static struct irq_module_name irq_namespace_list[VANZO_IRQ_NAME_NUM] = { NULL };
+static struct irq_module_name irq_namespace_list[IRQ_NAME_NUM] = { NULL };
 
 static void global_tasklet_handler(unsigned long data);
 static DECLARE_TASKLET(global_tasklet, global_tasklet_handler, 0);
@@ -44,7 +44,7 @@ static void global_tasklet_handler(unsigned long data)
 
 	KP_INF("[%s] start\n", __func__);
 
-	for (i = 0; i < VANZO_IRQ_NAME_NUM; i++) {
+	for (i = 0; i < IRQ_NAME_NUM; i++) {
 		if (current_irq_num == irqm->irq_num[i]) {
 			irq_state_handler(irqm, i);
 			enable_irq(irqm->irq_num[i]);
@@ -56,7 +56,7 @@ static void global_tasklet_handler(unsigned long data)
 static DECLARE_IRQ_HANDLER(f11);
 static DECLARE_IRQ_HANDLER(f12);
 
-static irqreturn_t (*handler[VANZO_IRQ_NAME_NUM])(int irq, void *dev_id) = {
+static irqreturn_t (*handler[IRQ_NAME_NUM])(int irq, void *dev_id) = {
 	&DECLARE_IRQ_HANDLER_NAME(f11),
 	&DECLARE_IRQ_HANDLER_NAME(f12),
 };
@@ -69,14 +69,14 @@ enum RETURN irq_request_init(struct irq_module *irq)
 
 	KP_INF("[%s] start\n", __func__);
 
-	irq->irq_node = of_find_compatible_node(NULL, NULL, VANZO_DRV_COMPATIBLE_MATCH);
+	irq->irq_node = of_find_compatible_node(NULL, NULL, DRV_COMPATIBLE_MATCH);
 	if (!irq->irq_node) {
 		KP_ERR("[%s] null irq node!\n", __func__);
 		ret = RETURN_ERROR;
 		goto err;
 	}
 
-	for (i = 0; i < VANZO_IRQ_NAME_NUM; i++, name++) {
+	for (i = 0; i < IRQ_NAME_NUM; i++, name++) {
 		/* Parse the irq number */
 		if (irq->irq_num[i] = irq_of_parse_and_map(irq->irq_node, i))
 			KP_DBG("[%s] irq(%d) number is %d\n", __func__, i, irq->irq_num[i]);

@@ -1,5 +1,5 @@
 /*
- * Vanzo Misc Device Driver --- input subsystem
+ * Misc Device Driver --- input subsystem
  *
  * Copyright (C) 2018 Sam Morgan Jiang  (sam.morgan.jiang@outlook.com)
  *
@@ -31,7 +31,7 @@ enum RETURN input_device_init(struct input_module *input)
 		return -ENOMEM;
 
 	input->list = input_event_list;
-	input->dev->name = VANZO_INPUT_NAME;
+	input->dev->name = INPUT_NAME;
 	set_bit(EV_KEY, input->dev->evbit);
 
 	for (i = 0; input_event_list[i] != EVENT_END; i++) {

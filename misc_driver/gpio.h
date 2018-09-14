@@ -1,13 +1,13 @@
 /*
- * Vanzo Misc Device Driver --- gpio subsystem
+ * Misc Device Driver --- gpio subsystem
  *
  * Copyright (C) 2018 Sam Morgan Jiang  (sam.morgan.jiang@outlook.com)
  *
  * Licensed under GPLv2 or later.
  */
 
-#ifndef __VANZO_MISC_GPIO_CTRL_H__
-#define __VANZO_MISC_GPIO_CTRL_H__
+#ifndef __MISC_GPIO_CTRL_H__
+#define __MISC_GPIO_CTRL_H__
 
 enum GPIO_CTRL_STATE {
 	GPIO_CTRL_STATE_NULL        = -1,

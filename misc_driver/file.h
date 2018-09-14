@@ -1,13 +1,13 @@
 /*
- * Vanzo Misc Device Driver --- file subsystem
+ * Misc Device Driver --- file subsystem
  *
  * Copyright (C) 2018 Sam Morgan Jiang  (sam.morgan.jiang@outlook.com)
  *
  * Licensed under GPLv2 or later.
  */
 
-#ifndef __VANZO_MISC_FILE_CTRL_H__
-#define __VANZO_MISC_FILE_CTRL_H__
+#ifndef __MISC_FILE_CTRL_H__
+#define __MISC_FILE_CTRL_H__
 
 #define FILE_SET_VALUE_SIZE             3
 

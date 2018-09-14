@@ -1,5 +1,5 @@
 /*
- * Vanzo Misc Device Driver
+ * Misc Device Driver
  *
  * Copyright (C) 2018 Sam Morgan Jiang  (sam.morgan.jiang@outlook.com)
  *
@@ -54,7 +54,7 @@ static int normal_misc_drv_remove(struct platform_device *pdev)
 
 //=================================================================//
 static const struct of_device_id normal_misc_drv_of_match[] = {
-	{ .compatible = VANZO_DRV_COMPATIBLE_MATCH, },
+	{ .compatible = DRV_COMPATIBLE_MATCH, },
 	{},
 };
 
@@ -63,7 +63,7 @@ static struct platform_driver normal_misc_driver = {
 	.remove = normal_misc_drv_remove,
 	.driver = {
 		.owner          = THIS_MODULE,
-		.name           = VANZO_DRV_NAME,
+		.name           = DRV_NAME,
 		.of_match_table = normal_misc_drv_of_match,
 	},
 };
@@ -71,5 +71,5 @@ static struct platform_driver normal_misc_driver = {
 module_platform_driver(normal_misc_driver);
 
 MODULE_AUTHOR("Sam <sam.morgan.jiang@outlook.com>");
-MODULE_DESCRIPTION("Vanzo Misc Device Driver");
+MODULE_DESCRIPTION("Misc Device Driver");
 MODULE_LICENSE("GPL v2");

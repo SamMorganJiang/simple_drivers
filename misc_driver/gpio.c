@@ -1,5 +1,5 @@
 /*
- * Vanzo Misc Device Driver --- gpio subsystem
+ * Misc Device Driver --- gpio subsystem
  *
  * Copyright (C) 2018 Sam Morgan Jiang  (sam.morgan.jiang@outlook.com)
  *

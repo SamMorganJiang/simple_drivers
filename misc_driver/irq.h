@@ -1,28 +1,28 @@
 /*
- * Vanzo Misc Device Driver --- irq subsystem
+ * Misc Device Driver --- irq subsystem
  *
  * Copyright (C) 2018 Sam Morgan Jiang  (sam.morgan.jiang@outlook.com)
  *
  * Licensed under GPLv2 or later.
  */
 
-#ifndef __VANZO_MISC_INTERRUPT_CTRL_H__
-#define __VANZO_MISC_INTERRUPT_CTRL_H__
+#ifndef __MISC_INTERRUPT_CTRL_H__
+#define __MISC_INTERRUPT_CTRL_H__
 
-#define VANZO_IRQ_NAME_NUM        2
+#define IRQ_NAME_NUM        2
 
 struct irq_module_name {
 	char *irq_name_space;
 };
 
 struct irq_module {
-	int                     irq_num[VANZO_IRQ_NAME_NUM];
-	int                     irq_source[VANZO_IRQ_NAME_NUM];
-	int                     irq_state[VANZO_IRQ_NAME_NUM];
+	int                     irq_num[IRQ_NAME_NUM];
+	int                     irq_source[IRQ_NAME_NUM];
+	int                     irq_state[IRQ_NAME_NUM];
 	struct irq_module_name  *name;
 	struct device_node      *irq_node;
 
-	irqreturn_t (*eint_handler[VANZO_IRQ_NAME_NUM])(int irq, void *dev_id);
+	irqreturn_t (*eint_handler[IRQ_NAME_NUM])(int irq, void *dev_id);
 };
 
 enum IRQ_STATE {

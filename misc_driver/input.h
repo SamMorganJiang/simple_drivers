@@ -1,13 +1,13 @@
 /*
- * Vanzo Misc Device Driver --- input subsystem
+ * Misc Device Driver --- input subsystem
  *
  * Copyright (C) 2018 Sam Morgan Jiang  (sam.morgan.jiang@outlook.com)
  *
  * Licensed under GPLv2 or later.
  */
 
-#ifndef __VANZO_MISC_INPUT_CTRL_H__
-#define __VANZO_MISC_INPUT_CTRL_H__
+#ifndef __MISC_INPUT_CTRL_H__
+#define __MISC_INPUT_CTRL_H__
 
 #define EVENT_NUM            3
 #define EVENT_END            -1

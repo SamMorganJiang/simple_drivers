@@ -1,5 +1,5 @@
 /*
- * Vanzo Misc Device Driver --- pwm subsystem
+ * Misc Device Driver --- pwm subsystem
  *
  * Copyright (C) 2018 Sam Morgan Jiang  (sam.morgan.jiang@outlook.com)
  *
